@@ -2,23 +2,22 @@
 pragma solidity ^0.8.13;
 
 import {Test, console2} from "forge-std/Test.sol";
-import {Counter} from "../src/Counter.sol";
+import {Perpetuals} from "src/Perpetuals.sol";
 
-contract CounterTest is Test {
-    Counter public counter;
+contract PerpetualsTest is Test {
+    Perpetuals public perpetuals;
 
     function setUp() public {
-        counter = new Counter();
-        counter.setNumber(0);
+        perpetuals = new Perpetuals();
+        //perpetuals.setNumber(0);
     }
 
-    function test_Increment() public {
-        counter.increment();
-        assertEq(counter.number(), 1);
-    }
+    //////////////////////////
+    //     Deposit Tests    //
+    //////////////////////////
 
-    function testFuzz_SetNumber(uint256 x) public {
-        counter.setNumber(x);
-        assertEq(counter.number(), x);
+    function test_UserBalanceUpdatedWhenDeposited() public {
+        //counter.increment();
+        //assertEq(counter.number(), 1);
     }
 }

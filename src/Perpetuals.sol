@@ -37,18 +37,16 @@ pragma solidity ^0.8.23;
 * Their position can have up to 
 */
 
-    /////////////////////////////////
-    //            Imports          //
-    /////////////////////////////////
-
-
+/////////////////////////////////
+//            Imports          //
+/////////////////////////////////
 
 contract Perpetuals {
-
     /////////////////////////////////
     //            Errors           //
     /////////////////////////////////
-
+    error DSCEngine__MustBeMoreThanZero();
+    error DSCEngine__TokenNotSupported();
 
     /////////////////////////////////
     //            Events           //
@@ -59,22 +57,37 @@ contract Perpetuals {
     //           Modifiers         //
     /////////////////////////////////
 
+    modifier GreaterThanZero(uint256 _amount) {
+        //Custom errors cant be used with the require statement
+        if (_amount == 0) revert DSCEngine__MustBeMoreThanZero();
+        _;
+    }
+
+    modifier isTokenAllowed(address _token) {
+        //If _token is not in the mapping, it returns 0x0 address thats equals to address(0)
+        if (s_priceFeeds[_token] == address(0)) revert DSCEngine__TokenNotSupported();
+        _;
+    }
+
     /////////////////////////////////
     //        State Variables      //
     /////////////////////////////////
 
-   mapping(address user => mapping (address token => uint256 amount)) userToLiquidityProvided;
+    mapping(address user => mapping(address token => uint256 amount)) s_userToLiquidityProvided; //stores the tokens that the user has deposited as collateral
+    mapping(address token => address priceFeed) s_priceFeeds; //stores the price feeds of the token
 
-    
     constructor() {}
 
     /////////////////////////////////////
     //  Liquidity Providers Functions  //
     /////////////////////////////////////
 
-    function depositLiquidity(uint256 amount, address tokenAddress) internal {
-
-        userToLiquidityProvided[msg.sender][tokenAddress] += amount;
+    function depositLiquidity(uint256 amount, address tokenAddress)
+        internal
+        GreaterThanZero(amount)
+        isTokenAllowed(tokenAddress)
+    {
+        s_userToLiquidityProvided[msg.sender][tokenAddress] += amount;
         emit CollateralDeposited(msg.sender, amount, tokenAddress);
     }
 
@@ -94,7 +107,5 @@ contract Perpetuals {
     //       Auxiliar Functions        //
     /////////////////////////////////////
 
-    function getUsdPrice(address tokenAddress) internal {
-        
-    }
+    function getUsdPrice(address tokenAddress) internal {}
 }
